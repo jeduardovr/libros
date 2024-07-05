@@ -35,59 +35,65 @@ const debouncedSearchBook = debounce(function(event) {
         .then(response => response.json())
         .then(data => {
             const table = document.getElementById('bookTable');
-            table.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
+            table.innerHTML = '';
 
             if (!data.items || data.items.length === 0) {
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
-                cell.colSpan = 4; // Ajusta según el número de columnas
-                cell.textContent = 'No se encontraron resultados, escriba el titulo de un libro...';
-                cell.style.textAlign = 'center'; // Centrar el texto en la celda
-                row.appendChild(cell);
-                table.appendChild(row);
+                alert(table, 'Escriba el titulo de un libro...')
                 return;
             }
 
             data.items.forEach(element => {
+                //Crear renglon
                 const row = document.createElement('tr');
 
+                //Crear celdas
                 const cellImage = document.createElement('td');
                 const cellTitle = document.createElement('td');
                 const cellAuthor = document.createElement('td');
                 const cellDescription = document.createElement('td');
 
+                //Crear etiqueta imagen y asignar imagen de base de datos
                 const image = document.createElement('img');
                 image.src = element.volumeInfo.imageLinks.thumbnail;
                 cellImage.append(image);
 
+                //Asignar titulo a la celda
                 cellTitle.innerHTML = element.volumeInfo.title;
 
+                //Asignar autor a la celda, si no encuentra autor muestra el mensaje "SIN AUTOR"
                 cellAuthor.innerHTML = element.volumeInfo.authors ? element.volumeInfo.authors.join(', ') : 'SIN AUTOR';
 
+                //Asignar descripcion a la celda
                 const descriptionText = element.volumeInfo.description || '';
+                
+                //Si la descripcion tiene mas de 100 caracteres, se trunca para que no se distorsione la tabla
                 const truncatedText = descriptionText.length > 100 ? descriptionText.substring(0, 97) + '...' : descriptionText;
-
                 cellDescription.innerHTML = truncatedText;
-                cellDescription.classList.add('cell-description');
-                cellDescription.setAttribute('data-fulltext', descriptionText);
 
+                //Agregamos las celdas al renglon
                 row.append(cellImage, cellTitle, cellAuthor, cellDescription);
+
+                //Agregamos el renglon a la tabla
                 table.append(row);
             });
         })
         .catch(error => {
             console.error("Error:", error);
             const table = document.getElementById('bookTable');
-            table.innerHTML = ''; // Limpiar la tabla antes de agregar el mensaje de error
+            table.innerHTML = '';
 
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.colSpan = 4; // Ajusta según el número de columnas
-            cell.textContent = 'Ocurrió un error al cargar los datos.';
-            cell.style.textAlign = 'center'; // Centrar el texto en la celda
-            row.appendChild(cell);
-            table.appendChild(row);
+            alert(table, 'Ocurrió un error al cargar los datos.')
         });
-}, 300); // Ajusta el tiempo de espera del debounce (en milisegundos)
+}, 300);
+
+function alert(table, message) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 4;
+    cell.textContent = message;
+    cell.style.textAlign = 'center';
+    row.appendChild(cell);
+    table.appendChild(row);
+}
 
 document.getElementById('searchInput').addEventListener('keyup', debouncedSearchBook);
